@@ -1,0 +1,25 @@
+{
+    "name": "himiklab/yii2-ipgeobase-component",
+    "description": "Yii2 IpGeoBase.ru wrapper",
+    "keywords": ["yii2", "ipgeobase", "ipgeobase.ru", "geolocation"],
+    "type": "yii2-extension",
+    "license": "MIT",
+    "support": {
+        "source": "https://github.com/himiklab/yii2-ipgeobase-component",
+        "issues": "https://github.com/himiklab/yii2-ipgeobase-component/issues"
+    },
+    "authors": [
+        {
+            "name": "HimikLab",
+            "homepage": "https://github.com/himiklab"
+        }
+    ],
+    "require": {
+        "yiisoft/yii2": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "himiklab\\ipgeobase\\": ""
+        }
+    }
+}
