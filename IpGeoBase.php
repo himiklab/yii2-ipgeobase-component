@@ -101,18 +101,18 @@ class IpGeoBase extends Component
      */
     protected function fromSite($ip)
     {
-        $xmlData = file_get_contents(self::XML_URL . $ip);
-        $ip = (new \SimpleXMLElement($xmlData))->ip;
+        $xmlData = $this->getRemoteContent(self::XML_URL . urlencode($ip));
+        $ipData = (new \SimpleXMLElement($xmlData))->ip;
         if (isset($ip->message)) {
             return false;
         }
 
         return [
-            'country' => (string)$ip->country,
-            'city' => isset($ip->city) ? (string)$ip->city : null,
-            'region' => isset($ip->region) ? (string)$ip->region : null,
-            'lat' => isset($ip->lat) ? (string)$ip->lat : null,
-            'lng' => isset($ip->lng) ? (string)$ip->lng : null
+            'country' => (string)$ipData->country,
+            'city' => isset($ipData->city) ? (string)$ipData->city : null,
+            'region' => isset($ipData->region) ? (string)$ipData->region : null,
+            'lat' => isset($ipData->lat) ? (string)$ipData->lat : null,
+            'lng' => isset($ipData->lng) ? (string)$ipData->lng : null
         ];
     }
 
@@ -237,8 +237,8 @@ class IpGeoBase extends Component
      */
     protected function getArchive()
     {
-        $fileData = file_get_contents(self::ARCHIVE_URL);
-        if ($fileData === false) {
+        $fileData = $this->getRemoteContent(self::ARCHIVE_URL);
+        if ($fileData == false) {
             return false;
         }
 
@@ -249,5 +249,26 @@ class IpGeoBase extends Component
         }
 
         return false;
+    }
+
+    /**
+     * Метод возвращает содержимое документа полученного по указанному url.
+     * @param string $url
+     * @return mixed|string
+     */
+    protected function getRemoteContent($url)
+    {
+        if (function_exists('curl_version')) {
+            $curl = curl_init($url);
+            curl_setopt_array($curl, [
+                CURLOPT_HEADER => false,
+                CURLOPT_RETURNTRANSFER => true
+            ]);
+            $data = curl_exec($curl);
+            curl_close($curl);
+            return $data;
+        } else {
+            return file_get_contents($url);
+        }
     }
 }
