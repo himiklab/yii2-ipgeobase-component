@@ -38,14 +38,21 @@ class IpGeoBase extends Component
     /**
      * Определение географического положеня по IP-адресу.
      * @param string $ip
-     * @return array|bool ('ip', 'country', 'city', 'region', 'lat', 'lng') или false если ничего не найдено.
+     * @param bool $asArray
+     * @return array|IpData|bool ('ip', 'country', 'city', 'region', 'lat', 'lng') или false если ничего не найдено.
      */
-    public function getLocation($ip)
+    public function getLocation($ip, $asArray = true)
     {
         if ($this->useLocalDB) {
-            return $this->fromDB($ip) + ['ip' => $ip];
+            $ipDataArray = $this->fromDB($ip) + ['ip' => $ip];
         } else {
-            return $this->fromSite($ip) + ['ip' => $ip];
+            $ipDataArray = $this->fromSite($ip) + ['ip' => $ip];
+        }
+
+        if ($asArray) {
+            return $ipDataArray;
+        } else {
+            return new IpData($ipDataArray);
         }
     }
 

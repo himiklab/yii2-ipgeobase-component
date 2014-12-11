@@ -41,4 +41,5 @@ php composer.phar require --prefer-dist "himiklab/yii2-ipgeobase-component" "*"
 -------------
 ```php
 var_dump(Yii::$app->ipgeobase->getLocation('144.206.192.6'));
+var_dump(Yii::$app->ipgeobase->getLocation('144.206.192.6', false));
 ```
