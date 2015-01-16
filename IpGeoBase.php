@@ -39,7 +39,7 @@ class IpGeoBase extends Component
      * Определение географического положеня по IP-адресу.
      * @param string $ip
      * @param bool $asArray
-     * @return array|IpData|bool ('ip', 'country', 'city', 'region', 'lat', 'lng') или false если ничего не найдено.
+     * @return array|IpData ('ip', 'country', 'city', 'region', 'lat', 'lng') или false если ничего не найдено.
      */
     public function getLocation($ip, $asArray = true)
     {
@@ -104,14 +104,14 @@ class IpGeoBase extends Component
 
     /**
      * @param string $ip
-     * @return array|bool
+     * @return array
      */
     protected function fromSite($ip)
     {
         $xmlData = $this->getRemoteContent(self::XML_URL . urlencode($ip));
         $ipData = (new \SimpleXMLElement($xmlData))->ip;
         if (isset($ip->message)) {
-            return false;
+            return [];
         }
 
         return [
@@ -125,7 +125,7 @@ class IpGeoBase extends Component
 
     /**
      * @param string $ip
-     * @return array|bool
+     * @return array
      */
     protected function fromDB($ip)
     {
@@ -133,7 +133,7 @@ class IpGeoBase extends Component
         $dbCityTableName = self::DB_CITY_TABLE_NAME;
         $dbRegionTableName = self::DB_REGION_TABLE_NAME;
 
-        return Yii::$app->db->createCommand(
+        $result = Yii::$app->db->createCommand(
             "SELECT tIp.country_code AS country, tCity.name AS city,
                     tRegion.name AS region, tCity.latitude AS lat,
                     tCity.longitude AS lng
@@ -142,6 +142,12 @@ class IpGeoBase extends Component
             LEFT JOIN {$dbRegionTableName} AS tRegion ON tRegion.id = tCity.region_id
             WHERE INET_ATON(:ip) <= tIp.ip_end"
         )->bindValue(':ip', $ip)->queryOne();
+
+        if ($result != false) {
+            return $result;
+        } else {
+            return [];
+        }
     }
 
     /**
