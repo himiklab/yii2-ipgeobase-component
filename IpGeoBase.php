@@ -10,6 +10,7 @@ namespace himiklab\ipgeobase;
 use Yii;
 use yii\base\Component;
 use yii\base\Exception;
+use yii\db\Query;
 
 /**
  * Компонент для работы с базой IP-адресов сайта IpGeoBase.ru,
@@ -132,16 +133,22 @@ class IpGeoBase extends Component
         $dbIpTableName = self::DB_IP_TABLE_NAME;
         $dbCityTableName = self::DB_CITY_TABLE_NAME;
         $dbRegionTableName = self::DB_REGION_TABLE_NAME;
+        $ip = ip2long($ip);
 
-        $result = Yii::$app->db->createCommand(
-            "SELECT tIp.country_code AS country, tCity.name AS city,
-                    tRegion.name AS region, tCity.latitude AS lat,
-                    tCity.longitude AS lng
-            FROM (SELECT * FROM {$dbIpTableName} WHERE ip_begin <= INET_ATON(:ip) ORDER BY ip_begin DESC LIMIT 1) AS tIp
-            LEFT JOIN {$dbCityTableName} AS tCity ON tCity.id = tIp.city_id
-            LEFT JOIN {$dbRegionTableName} AS tRegion ON tRegion.id = tCity.region_id
-            WHERE INET_ATON(:ip) <= tIp.ip_end"
-        )->bindValue(':ip', $ip)->queryOne();
+        $result = (new Query())
+            ->select([
+                't_ip.country_code AS country', 't_region.name AS region', 't_city.name AS city',
+                't_city.latitude AS lat','t_city.longitude AS lng'
+            ])
+            ->from(['t_ip' => (new Query())
+                ->from($dbIpTableName)
+                ->where(['<=' , 'ip_begin', $ip])
+                ->orderBy(['ip_begin' => SORT_DESC])
+            ])
+            ->leftJoin(['t_city' => $dbCityTableName], 't_city.id = t_ip.city_id')
+            ->leftJoin(['t_region' => $dbRegionTableName], 't_region.id = t_city.region_id')
+            ->where(['>=', 't_ip.ip_end', $ip])
+            ->one();
 
         if ($result != false) {
             return $result;
