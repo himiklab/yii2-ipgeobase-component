@@ -16,27 +16,27 @@ class m141125_101036_ip_geobase extends Migration
     public function up()
     {
         $this->createTable(self::DB_IP_TABLE_NAME, [
-            'ip_begin' => 'INT UNSIGNED NOT NULL',
-            'ip_end' => ' INT UNSIGNED NOT NULL',
-            'country_code' => 'VARCHAR(2) NOT NULL',
-            'city_id' => 'INT(6) UNSIGNED NOT NULL'
+            'ip_begin' => $this->bigInteger()->unsigned()->notNull(),
+            'ip_end' => $this->bigInteger()->unsigned()->notNull(),
+            'country_code' => $this->string(2)->notNull(),
+            'city_id' => $this->integer(6)->unsigned()->notNull()
         ]);
         $this->createIndex('ip_begin', self::DB_IP_TABLE_NAME, 'ip_begin', true);
 
         $this->createTable(self::DB_CITY_TABLE_NAME, [
-            'id' => 'INT(6) UNSIGNED NOT NULL',
-            'name' => 'VARCHAR(50) NOT NULL',
-            'region_id' => 'INT(6) UNSIGNED NOT NULL',
-            'latitude' => 'DOUBLE NOT NULL',
-            'longitude' => 'DOUBLE NOT NULL'
+            'id' => $this->integer(6)->unsigned()->notNull(),
+            'name' => $this->string(50)->notNull(),
+            'region_id' => $this->integer(6)->unsigned()->notNull(),
+            'latitude' => $this->double()->notNull(),
+            'longitude' => $this->double()->notNull()
         ]);
-        $this->createIndex('id', self::DB_CITY_TABLE_NAME, 'id', true);
+        $this->createIndex('city_id', self::DB_CITY_TABLE_NAME, 'id', true);
 
         $this->createTable(self::DB_REGION_TABLE_NAME, [
-            'id' => 'INT(6) UNSIGNED NOT NULL',
-            'name' => 'VARCHAR(50) NOT NULL'
+            'id' => $this->integer(6)->unsigned()->notNull(),
+            'name' => $this->string(50)->notNull()
         ]);
-        $this->createIndex('id', self::DB_REGION_TABLE_NAME, 'id', true);
+        $this->createIndex('region_id', self::DB_REGION_TABLE_NAME, 'id', true);
     }
 
     public function down()
