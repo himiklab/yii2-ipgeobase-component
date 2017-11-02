@@ -1,7 +1,7 @@
 <?php
 /**
  * @link https://github.com/himiklab/yii2-ipgeobase-component
- * @copyright Copyright (c) 2014 HimikLab
+ * @copyright Copyright (c) 2014-2017 HimikLab
  * @license http://opensource.org/licenses/MIT MIT
  */
 
@@ -16,8 +16,8 @@ class m141125_101036_ip_geobase extends Migration
     public function up()
     {
         $this->createTable(self::DB_IP_TABLE_NAME, [
-            'ip_begin' => $this->bigInteger()->unsigned()->notNull(),
-            'ip_end' => $this->bigInteger()->unsigned()->notNull(),
+            'ip_begin' => $this->integer()->unsigned()->notNull(),
+            'ip_end' => $this->integer()->unsigned()->notNull(),
             'country_code' => $this->string(2)->notNull(),
             'city_id' => $this->integer(6)->unsigned()->notNull()
         ]);

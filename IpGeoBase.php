@@ -1,7 +1,7 @@
 <?php
 /**
  * @link https://github.com/himiklab/yii2-ipgeobase-component
- * @copyright Copyright (c) 2014 HimikLab
+ * @copyright Copyright (c) 2014-2017 HimikLab
  * @license http://opensource.org/licenses/MIT MIT
  */
 
@@ -39,7 +39,7 @@ class IpGeoBase extends Component
     /**
      * Определение географического положеня по IP-адресу.
      * @param string $ip
-     * @param bool $asArray
+     * @param boolean $asArray
      * @return array|IpData ('ip', 'country', 'city', 'region', 'lat', 'lng') или false если ничего не найдено.
      */
     public function getLocation($ip, $asArray = true)
@@ -52,14 +52,14 @@ class IpGeoBase extends Component
 
         if ($asArray) {
             return $ipDataArray;
-        } else {
-            return new IpData($ipDataArray);
         }
+
+        return new IpData($ipDataArray);
     }
 
     /**
      * Тест скорости получения данных из БД.
-     * @param int $iterations
+     * @param integer $iterations
      * @return float IP/second
      */
     public function speedTest($iterations)
@@ -75,11 +75,11 @@ class IpGeoBase extends Component
         }
         $time = microtime(true) - $begin;
 
-        if ($time != 0 && $iterations != 0) {
+        if ($time !== 0 && $iterations !== 0) {
             return $iterations / $time;
-        } else {
-            return 0.0;
         }
+
+        return 0.0;
     }
 
     /**
@@ -88,7 +88,7 @@ class IpGeoBase extends Component
      */
     public function updateDB()
     {
-        if (($fileName = $this->getArchive()) == false) {
+        if (($fileName = $this->getArchive()) === false) {
             throw new Exception('Ошибка загрузки архива.');
         }
         $zip = new \ZipArchive;
@@ -138,11 +138,11 @@ class IpGeoBase extends Component
         $result = (new Query())
             ->select([
                 't_ip.country_code AS country', 't_region.name AS region', 't_city.name AS city',
-                't_city.latitude AS lat','t_city.longitude AS lng'
+                't_city.latitude AS lat', 't_city.longitude AS lng'
             ])
             ->from(['t_ip' => (new Query())
                 ->from($dbIpTableName)
-                ->where(['<=' , 'ip_begin', $ip])
+                ->where(['<=', 'ip_begin', $ip])
                 ->orderBy(['ip_begin' => SORT_DESC])
             ])
             ->leftJoin(['t_city' => $dbCityTableName], 't_city.id = t_ip.city_id')
@@ -150,11 +150,11 @@ class IpGeoBase extends Component
             ->where(['>=', 't_ip.ip_end', $ip])
             ->one();
 
-        if ($result != false) {
+        if ($result !== false) {
             return $result;
-        } else {
-            return [];
         }
+
+        return [];
     }
 
     /**
@@ -220,51 +220,45 @@ class IpGeoBase extends Component
         array_pop($ipsArray); // пустая строка
 
         $i = 0;
-        $values = '';
-        $dbIpTableName = self::DB_IP_TABLE_NAME;
-        Yii::$app->db->createCommand()->truncateTable($dbIpTableName)->execute();
+        $values = [];
+        Yii::$app->db->createCommand()->truncateTable(self::DB_IP_TABLE_NAME)->execute();
         foreach ($ipsArray as $ip) {
             $row = explode("\t", $ip);
-            $values .= '(' . (float)$row[0] .
-                ',' . (float)$row[1] .
-                ',' . Yii::$app->db->quoteValue($row[3]) .
-                ',' . ($row[4] !== '-' ? (int)$row[4] : 0) .
-                ')';
-            ++$i;
+            $values[++$i] = [$row[0], $row[1], $row[3], ($row[4] !== '-' ? $row[4] : 0)];
 
             if ($i === self::DB_IP_INSERTING_ROWS) {
-                Yii::$app->db->createCommand(
-                    "INSERT INTO {$dbIpTableName} (ip_begin, ip_end, country_code, city_id)
-                    VALUES {$values}"
+                Yii::$app->db->createCommand()->batchInsert(
+                    self::DB_IP_TABLE_NAME,
+                    ['ip_begin', 'ip_end', 'country_code', 'city_id'],
+                    $values
                 )->execute();
+
                 $i = 0;
-                $values = '';
+                $values = [];
                 continue;
             }
-            $values .= ',';
         }
 
         // оставшиеся строки не вошедшие в пакеты
-        Yii::$app->db->createCommand(
-            "INSERT INTO {$dbIpTableName} (ip_begin, ip_end, country_code, city_id)
-            VALUES " . rtrim($values, ',')
+        Yii::$app->db->createCommand()->batchInsert(
+            self::DB_IP_TABLE_NAME,
+            ['ip_begin', 'ip_end', 'country_code', 'city_id'],
+            $values
         )->execute();
     }
 
     /**
      * Метод загружает архив с данными с адреса self::ARCHIVE_URL.
-     * @return bool|string путь к загруженному файлу или false если файл загрузить не удалось.
+     * @return boolean|string путь к загруженному файлу или false если файл загрузить не удалось.
      */
     protected function getArchive()
     {
-        $fileData = $this->getRemoteContent(self::ARCHIVE_URL);
-        if ($fileData == false) {
+        if (($fileData = $this->getRemoteContent(self::ARCHIVE_URL)) === false) {
             return false;
         }
 
-        $fileName = Yii::getAlias('@runtime') . DIRECTORY_SEPARATOR .
-            substr(strrchr(self::ARCHIVE_URL, '/'), 1);
-        if (file_put_contents($fileName, $fileData) != false) {
+        $fileName = Yii::getAlias('@runtime') . DIRECTORY_SEPARATOR . substr(strrchr(self::ARCHIVE_URL, '/'), 1);
+        if (@file_put_contents($fileName, $fileData) !== false) {
             return $fileName;
         }
 
@@ -284,11 +278,10 @@ class IpGeoBase extends Component
                 CURLOPT_HEADER => false,
                 CURLOPT_RETURNTRANSFER => true
             ]);
-            $data = curl_exec($curl);
-            curl_close($curl);
-            return $data;
-        } else {
-            return file_get_contents($url);
+
+            return curl_exec($curl);
         }
+
+        return @file_get_contents($url);
     }
 }

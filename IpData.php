@@ -1,7 +1,7 @@
 <?php
 /**
  * @link https://github.com/himiklab/yii2-ipgeobase-component
- * @copyright Copyright (c) 2014 HimikLab
+ * @copyright Copyright (c) 2014-2017 HimikLab
  * @license http://opensource.org/licenses/MIT MIT
  */
 
@@ -26,6 +26,8 @@ class IpData extends Object
 
     public function __construct(array $data)
     {
+        parent::__construct();
+
         foreach ($data as $fieldName => $fieldValue) {
             if (property_exists($this, $fieldName)) {
                 $this->$fieldName = $fieldValue;
