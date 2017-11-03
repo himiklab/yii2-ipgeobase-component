@@ -7,7 +7,7 @@
 
 namespace himiklab\ipgeobase;
 
-use yii\base\Object;
+use yii\base\BaseObject;
 
 /**
  * Информация о конкретном IP-адресе.
@@ -15,7 +15,7 @@ use yii\base\Object;
  * @author HimikLab
  * @package himiklab\ipgeobase
  */
-class IpData extends Object
+class IpData extends BaseObject
 {
     public $ip;
     public $country;
