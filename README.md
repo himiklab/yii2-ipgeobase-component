@@ -4,6 +4,8 @@ Yii2 IpGeoBase.ru wrapper
 реализует поиск географического местонахождения IP-адреса, выделенного RIPE локальным интернет-реестрам (LIR-ам).
 Для Российской Федерации и Украины с точностью до города.
 
+[![Packagist](https://img.shields.io/packagist/dt/himiklab/yii2-ipgeobase-component.svg)]() [![Packagist](https://img.shields.io/packagist/v/himiklab/yii2-ipgeobase-component.svg)]()  [![license](https://img.shields.io/badge/License-MIT-yellow.svg)]()
+
 Установка
 ----------
 Предпочтительным является способ установки через [composer](http://getcomposer.org/download/).
