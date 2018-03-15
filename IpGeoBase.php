@@ -1,7 +1,7 @@
 <?php
 /**
  * @link https://github.com/himiklab/yii2-ipgeobase-component
- * @copyright Copyright (c) 2014-2017 HimikLab
+ * @copyright Copyright (c) 2014-2018 HimikLab
  * @license http://opensource.org/licenses/MIT MIT
  */
 
@@ -11,6 +11,7 @@ use Yii;
 use yii\base\Component;
 use yii\base\Exception;
 use yii\db\Query;
+use yii\httpclient\Client;
 
 /**
  * Компонент для работы с базой IP-адресов сайта IpGeoBase.ru,
@@ -41,6 +42,7 @@ class IpGeoBase extends Component
      * @param string $ip
      * @param boolean $asArray
      * @return array|IpData ('ip', 'country', 'city', 'region', 'lat', 'lng') или false если ничего не найдено.
+     * @throws Exception
      */
     public function getLocation($ip, $asArray = true)
     {
@@ -61,6 +63,7 @@ class IpGeoBase extends Component
      * Тест скорости получения данных из БД.
      * @param integer $iterations
      * @return float IP/second
+     * @throws Exception
      */
     public function speedTest($iterations)
     {
@@ -106,6 +109,7 @@ class IpGeoBase extends Component
     /**
      * @param string $ip
      * @return array
+     * @throws Exception
      */
     protected function fromSite($ip)
     {
@@ -250,6 +254,7 @@ class IpGeoBase extends Component
     /**
      * Метод загружает архив с данными с адреса self::ARCHIVE_URL.
      * @return boolean|string путь к загруженному файлу или false если файл загрузить не удалось.
+     * @throws Exception
      */
     protected function getArchive()
     {
@@ -268,20 +273,20 @@ class IpGeoBase extends Component
     /**
      * Метод возвращает содержимое документа полученного по указанному url.
      * @param string $url
-     * @return mixed|string
+     * @return string
+     * @throws Exception
      */
     protected function getRemoteContent($url)
     {
-        if (function_exists('curl_version')) {
-            $curl = curl_init($url);
-            curl_setopt_array($curl, [
-                CURLOPT_HEADER => false,
-                CURLOPT_RETURNTRANSFER => true
-            ]);
-
-            return curl_exec($curl);
+        $response = (new Client())
+            ->createRequest()
+            ->setMethod('GET')
+            ->setUrl($url)
+            ->send();
+        if (!$response->isOk) {
+            throw new Exception("URL {$url} doesn't exist");
         }
 
-        return @file_get_contents($url);
+        return $response->content;
     }
 }
