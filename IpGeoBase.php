@@ -37,8 +37,11 @@ class IpGeoBase extends Component
     /** @var bool $useLocalDB Использовать ли локальную базу данных */
     public $useLocalDB = false;
 
+    /** @var string Имя Вашего компонента подключения к БД. */
+    public $db = 'db';
+
     /**
-     * Определение географического положеня по IP-адресу.
+     * Определение географического положения по IP-адресу.
      * @param string $ip
      * @param boolean $asArray
      * @return array|IpData ('ip', 'country', 'city', 'region', 'lat', 'lng') или false если ничего не найдено.
@@ -192,8 +195,8 @@ class IpGeoBase extends Component
         }
 
         // города
-        Yii::$app->db->createCommand()->truncateTable(self::DB_CITY_TABLE_NAME)->execute();
-        Yii::$app->db->createCommand()->batchInsert(
+        Yii::$app->{$this->db}->createCommand()->truncateTable(self::DB_CITY_TABLE_NAME)->execute();
+        Yii::$app->{$this->db}->createCommand()->batchInsert(
             self::DB_CITY_TABLE_NAME,
             ['id', 'name', 'region_id', 'latitude', 'longitude'],
             $cities
@@ -204,8 +207,8 @@ class IpGeoBase extends Component
         foreach ($uniqueRegions as $regionUniqName => $regionUniqId) {
             $regions[] = [$regionUniqId, $regionUniqName];
         }
-        Yii::$app->db->createCommand()->truncateTable(self::DB_REGION_TABLE_NAME)->execute();
-        Yii::$app->db->createCommand()->batchInsert(
+        Yii::$app->{$this->db}->createCommand()->truncateTable(self::DB_REGION_TABLE_NAME)->execute();
+        Yii::$app->{$this->db}->createCommand()->batchInsert(
             self::DB_REGION_TABLE_NAME,
             ['id', 'name'],
             $regions
@@ -225,13 +228,13 @@ class IpGeoBase extends Component
 
         $i = 0;
         $values = [];
-        Yii::$app->db->createCommand()->truncateTable(self::DB_IP_TABLE_NAME)->execute();
+        Yii::$app->{$this->db}->createCommand()->truncateTable(self::DB_IP_TABLE_NAME)->execute();
         foreach ($ipsArray as $ip) {
             $row = explode("\t", $ip);
             $values[++$i] = [$row[0], $row[1], $row[3], ($row[4] !== '-' ? $row[4] : 0)];
 
             if ($i === self::DB_IP_INSERTING_ROWS) {
-                Yii::$app->db->createCommand()->batchInsert(
+                Yii::$app->{$this->db}->createCommand()->batchInsert(
                     self::DB_IP_TABLE_NAME,
                     ['ip_begin', 'ip_end', 'country_code', 'city_id'],
                     $values
@@ -244,7 +247,7 @@ class IpGeoBase extends Component
         }
 
         // оставшиеся строки не вошедшие в пакеты
-        Yii::$app->db->createCommand()->batchInsert(
+        Yii::$app->{$this->db}->createCommand()->batchInsert(
             self::DB_IP_TABLE_NAME,
             ['ip_begin', 'ip_end', 'country_code', 'city_id'],
             $values
