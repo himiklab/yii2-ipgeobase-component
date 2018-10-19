@@ -37,12 +37,15 @@ php composer.phar require --prefer-dist "himiklab/yii2-ipgeobase-component" "*"
 * Если хотите использовать локальную базу IP-адресов (работает на порядки быстрее чем напрямую через сайт),
 то:
     * примените миграции из папки `migrations`
-```
-./vendor/bin/yii migrate/up --migration-path=@vendor/himiklab/yii2-ipgeobase-component/migrations
-```
     * установите свойство компонента `useLocalDB` в `true`
     * добавьте вызов метода `IpGeoBase::updateDB` в ежедневное расписание `cron`. Не забыв вызвать его однократно
 для первоначального заполнения базы данных.
+
+* Команда для применения миграций:
+```
+./vendor/bin/yii migrate/up --migration-path=@vendor/himiklab/yii2-ipgeobase-component/migrations
+```
+
 
 Использование
 -------------
