@@ -43,9 +43,10 @@ php composer.phar require --prefer-dist "himiklab/yii2-ipgeobase-component" "*"
 
 * Команда для применения миграций:
 ```
-./vendor/bin/yii migrate/up --migration-path=@vendor/himiklab/yii2-ipgeobase-component/migrations
+./vendor/bin/yii migrate/up --migration-path=@vendor/himiklab/yii2-ipgeobase-component/migrations --appconfig=your-app-config.php
 ```
 
+> В файле `your-app-config.php` должна быть конфигурация приложения
 
 Использование
 -------------
